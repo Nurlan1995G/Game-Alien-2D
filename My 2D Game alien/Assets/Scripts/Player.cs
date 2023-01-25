@@ -10,29 +10,26 @@ public class Player : MonoBehaviour
     public float jumpHeight;
     public Transform groundCheck;
     bool isGrounded;
-    Animator anim; // анимация персонажа
-    int curHp;    // текущее здоровье
+    Animator anim; 
+    int curHp;    
     int maxHp = 3;
-    bool isHit = false;  // в ударе
+    bool isHit = false;  
     public Main main;
-    public bool key = false;    // есть ли у нас улюч или нет
-    bool canTP = true;   // это про телепорт от двери к двери
-    public bool inWater = false;  //мы не на воде
-    bool isClimbing = false;  // лестница,анимация 
-    int coins = 0;    // монеты
-    bool canHit = true;  // могут ли бить нас врагам или нет - Враги могут нам с бить
-    public GameObject blueGem, greenGem;   // это кристалы гемы - их отображение
-    int gemCount = 0;   // бонусы персонажа
-    float hitTimer = 0f;    //таймер удара, это для лавы
+    public bool key = false;    
+    bool canTP = true;   
+    public bool inWater = false;  
+    bool isClimbing = false;  
+    int coins = 0;    
+    bool canHit = true;  
+    public GameObject blueGem, greenGem;   
+    int gemCount = 0;   
+    float hitTimer = 0f; 
     public Image PlayerCountdown;
-    float insideTimer = -1f;    //для кнопки, засекаем время и проходим припяствие
-    public float insideTimeUp = 10f;   //для оптимизации,засекает время нажатии кнопки припятствии
-    public Image insideCountdown;   //само название кнопки
-    public Inventory inventory;   //Инветарь
-    public Soundeffector soundeffector;  //звуки клавиш, прыжка и тд
-
-    //public Joystick joystick;  //управление джостиком 
-
+    float insideTimer = -1f;   
+    public float insideTimeUp = 10f;   
+    public Image insideCountdown;   
+    public Inventory inventory;   
+    public Soundeffector soundeffector;  
 
     void Start()
     {
@@ -55,21 +52,21 @@ public class Player : MonoBehaviour
         {
             CheckGround();
             if(Input.GetAxis("Horizontal") == 0 && (isGrounded) && !isClimbing)
-            //if (joystick.Horizontal < 0.3f && joystick.Horizontal > -0.3f && (isGrounded) && !isClimbing)      // тут вся анимация персонажа,от
-                                                                                                                 // ходьбы до прыжка
+            //if (joystick.Horizontal < 0.3f && joystick.Horizontal > -0.3f && (isGrounded) && !isClimbing)  
+                                                                                                                
             {
-                anim.SetInteger("State", 1);  //анимация покоя
+                anim.SetInteger("State", 1); 
             }
             else
             {
                 Flip();
                 if (isGrounded && !isClimbing)
-                    anim.SetInteger("State", 2); //ходьбы
+                    anim.SetInteger("State", 2); 
             }
             FixedUpdate();
         }
         
-        if (insideTimer >= 0f)      // работа проводится, как только мы соприкосаемся с обьектом тега TimerButtonStart
+        if (insideTimer >= 0f)      
         {
             insideTimer += Time.deltaTime;
             if (insideTimer >= insideTimeUp)
@@ -82,7 +79,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    void FixedUpdate()  // движение игрока
+    void FixedUpdate()  
     {
         rb.velocity = new Vector2(Input.GetAxis("Horizontal") * speed,rb.velocity.y);
 
@@ -103,12 +100,12 @@ public class Player : MonoBehaviour
    // {
      //   if (isGrounded)
       //  {
-       //     rb.AddForce(transform.up * jumpHeight, ForceMode2D.Impulse);   //тутосуществляется прышок игрока с помощью кнопки
+       //     rb.AddForce(transform.up * jumpHeight, ForceMode2D.Impulse);   
        //     soundeffector.PlayJumpSound();
        // }
     //}
 
-    void Flip()    // движение игрока и поворот игрока
+    void Flip()    
     {
         if (Input.GetAxis("Horizontal") > 0)
             transform.localRotation = Quaternion.Euler(0, 0, 0);
@@ -120,15 +117,15 @@ public class Player : MonoBehaviour
           //  transform.localRotation = Quaternion.Euler(0, 180, 0);
     }
 
-    void CheckGround()  // чек что игрок стоит на земле
+    void CheckGround() 
     {
         Collider2D[] colliders = Physics2D.OverlapCircleAll(groundCheck.position, 0.2f);
         isGrounded = colliders.Length > 1;
-        if (!isGrounded && !isClimbing)                 // если игрок не на земле, то проигрывается анимация прыжка
-            anim.SetInteger("State", 3);  //прыжок
+        if (!isGrounded && !isClimbing)              
+            anim.SetInteger("State", 3); 
     }
 
-    public void RecountHp(int deltaHp)   // это метод убавление жизни или удар 
+    public void RecountHp(int deltaHp)   
     {
         curHp = curHp + deltaHp;
         if (deltaHp < 0 && canHit)
@@ -152,7 +149,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    IEnumerator OnHit()   // корутина- онхит- при ударе переводится   здесь при ударе персонажа краснеет
+    IEnumerator OnHit()  
     {
         if(isHit)
             GetComponent<SpriteRenderer>().color = new Color(1f, GetComponent<SpriteRenderer>().color.g - 0.04f, GetComponent<SpriteRenderer>().color.b - 0.04f);
@@ -172,22 +169,21 @@ public class Player : MonoBehaviour
         StartCoroutine(OnHit());
     }
 
-    void Lose()   //терять
+    void Lose()   
     {
         main.GetComponent<Main>().Lose();
     }
 
-    private void OnTriggerEnter2D(Collider2D collision) // это про дверь, тоесть если ключ подобрал,то дверь открывается и телепоритрует
-                                                        // в другую дверь
+    private void OnTriggerEnter2D(Collider2D collision) 
     {
-        if (collision.gameObject.tag == "Key")      // тут берем ключ
+        if (collision.gameObject.tag == "Key")      
         {
             Destroy(collision.gameObject);
             key = true;
-            inventory.Add_key();      //вызов метода Inventory
+            inventory.Add_key();      
         }
 
-        if(collision.gameObject.tag == "Door")   // тут открываем дверь и срабатывает телепорт
+        if(collision.gameObject.tag == "Door")   
         {
             if (collision.gameObject.GetComponent<Door>().isOpen && canTP)
             {
@@ -199,47 +195,46 @@ public class Player : MonoBehaviour
                 collision.gameObject.GetComponent<Door>().Unlock();
         }
 
-        if (collision.gameObject.tag == "Coin")      // тут берем монетку
+        if (collision.gameObject.tag == "Coin")     
         {
             Destroy(collision.gameObject);
             coins++;
             soundeffector.PlayCoinSound();
         }
 
-        if (collision.gameObject.tag == "Heart")      // тут берем сердечко и она повышает здоровье через Recounthp
+        if (collision.gameObject.tag == "Heart")      
         {
             Destroy(collision.gameObject);
-            //RecountHp(1);
             inventory.Add_hp();
         }
 
 
-        if (collision.gameObject.tag == "Mushroom")      // тут берем уже гриб красный, который травит -1
+        if (collision.gameObject.tag == "Mushroom")     
         {
             Destroy(collision.gameObject);
             RecountHp(-1);
         }
 
-        if (collision.gameObject.tag == "BlueGem")      // тут берем алмаз синий который дает неуязвимость
+        if (collision.gameObject.tag == "BlueGem")      
         {
             Destroy(collision.gameObject);
             //StartCoroutine(NoHit());
             inventory.Add_bg();
         }
 
-        if (collision.gameObject.tag == "GreenGem")      // тут берем алмаз зеленый который увеличивает скорость 
+        if (collision.gameObject.tag == "GreenGem")      
         {
             Destroy(collision.gameObject);
             //StartCoroutine(SpeedBonus());
             inventory.Add_gg();
         }
 
-        if (collision.gameObject.tag == "TimerButtonStart")  // припятствие кнопка, дается определенное время
+        if (collision.gameObject.tag == "TimerButtonStart")  
         {
             insideTimer = 0f;
         }
 
-        if (collision.gameObject.tag == "TimerButtonStop")  // припятствие кнопка,завершается припятствие
+        if (collision.gameObject.tag == "TimerButtonStop") 
         {
             insideTimer = -1f;
             insideCountdown.fillAmount = 0f; 
@@ -253,14 +248,12 @@ public class Player : MonoBehaviour
         canTP = true;
     }
 
-    private void OnTriggerStay2D(Collider2D collision)     // это для того чтобы персонаж забирался по лестнице // действие метода при
-                                                           // касании тригера
+    private void OnTriggerStay2D(Collider2D collision)    
     {
         if (collision.gameObject.tag == "Ladder")
         {
             isClimbing = true;
-            rb.bodyType = RigidbodyType2D.Kinematic;      // это для того чтобы персонаж смог подняться по лестнице, отключить
-                                                          // гравитацию
+            rb.bodyType = RigidbodyType2D.Kinematic;      
             if (Input.GetAxis("Vertical") == 0)
             {
                 anim.SetInteger("State", 5);
@@ -272,7 +265,7 @@ public class Player : MonoBehaviour
             }
         }
 
-        if (collision.gameObject.tag == "Icy")   // для скольжении персонажа
+        if (collision.gameObject.tag == "Icy")   
         {
             if (rb.gravityScale == 1f)
             {
@@ -281,7 +274,7 @@ public class Player : MonoBehaviour
             }
 
         }
-        if (collision.gameObject.tag == "Lava")   // Лава
+        if (collision.gameObject.tag == "Lava")  
         {
             hitTimer += Time.deltaTime;
             if (hitTimer >= 3f)
@@ -297,16 +290,15 @@ public class Player : MonoBehaviour
 
 
     }
-    private void OnTriggerExit2D(Collider2D collision)   // этот метод работает при окончании касании объекта с тригером
+    private void OnTriggerExit2D(Collider2D collision)   
     {
         if (collision.gameObject.tag == "Ladder")
         {
             isClimbing = false;
-            rb.bodyType = RigidbodyType2D.Dynamic;  // а это для того чтобы как персонаж вышел с лестнице включить гравитацию и придать
-                                                    // давление вниз
+            rb.bodyType = RigidbodyType2D.Dynamic;  
         }
 
-        if (collision.gameObject.tag == "Icy")   // для окончании скольжении персонажа
+        if (collision.gameObject.tag == "Icy")   
         {
             if (rb.gravityScale == 8f)
             {
@@ -321,36 +313,35 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)  // это для того чтобы срабатывала анимация батута
+    private void OnCollisionEnter2D(Collision2D collision)  
     {
-        if (collision.gameObject.tag == "Trampoline")    // обращаемся к батуту
-            StartCoroutine(TrampolineAnim(collision.gameObject.GetComponentInParent<Animator>()));  // стар корутины батута
-        if (collision.gameObject.tag == "Quicksand")   // мы обращаемся к грайнд для того чтобы сделать зыбучие пески, сделать
-                                                       // тяжелее и убрать прыгучесть
+        if (collision.gameObject.tag == "Trampoline")   
+            StartCoroutine(TrampolineAnim(collision.gameObject.GetComponentInParent<Animator>()));  
+        if (collision.gameObject.tag == "Quicksand")   
         {
             speed *= 0.25f;
             rb.mass *= 100f;
         }
     }
 
-    IEnumerator TrampolineAnim(Animator an)  // тут идет корутина батута
+    IEnumerator TrampolineAnim(Animator an)  
     {
         an.SetBool("isJump", true);
         yield return new WaitForSeconds(0.5f);
         an.SetBool("isJump", false);
     }
 
-    IEnumerator NoHit()    // нет удара по персонажу, неуязвимость
+    IEnumerator NoHit()   
     {
         gemCount++;
-        blueGem.SetActive(true);  //делаем активным неуязвимость.
+        blueGem.SetActive(true); 
         CheckGems(blueGem);
 
         canHit = false;  
-        blueGem.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);  // вначале цвет гема равен 1
-        yield return new WaitForSeconds(4f);   // тут мы ждем
-        StartCoroutine(Invis(blueGem.GetComponent<SpriteRenderer>(), 0.02f));  // корутина плавного изчезновения гема, частота 50кадров в мин
-        yield return new WaitForSeconds(1f);  // ждем
+        blueGem.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 1f);  
+        yield return new WaitForSeconds(4f);  
+        StartCoroutine(Invis(blueGem.GetComponent<SpriteRenderer>(), 0.02f)); 
+        yield return new WaitForSeconds(1f);  
         canHit = true;   
 
         gemCount--;
@@ -376,7 +367,7 @@ public class Player : MonoBehaviour
         CheckGems(blueGem);
     }
 
-    void CheckGems (GameObject obj)  // этот метод проверяет в какой позиции должны стоять наши гемы алмазы
+    void CheckGems (GameObject obj)  
     {
         if (gemCount == 1)
             obj.gameObject.transform.localPosition = new Vector3(0f, 0.6f, obj.transform.localPosition.z);
@@ -388,9 +379,7 @@ public class Player : MonoBehaviour
 
     }
 
-    IEnumerator Invis(SpriteRenderer spr, float time)    //корутина которая будет делать наши гемы постепенно невидимыми, сколько по
-                                                         //времени
-                                                         //наш гем будет переходить в прозрачное
+    IEnumerator Invis(SpriteRenderer spr, float time)    
     {
         spr.color = new Color(1f, 1f, 1f, spr.color.a - time * 2);
         yield return new WaitForSeconds(time);
@@ -398,10 +387,9 @@ public class Player : MonoBehaviour
             StartCoroutine(Invis(spr, time));
     }
 
-    private void OnCollisionExit2D(Collision2D collision)  // этот метод работает,когда касание прекращается
+    private void OnCollisionExit2D(Collision2D collision)  
     {
-        if (collision.gameObject.tag == "Quicksand")   // мы обращаемся к грайнд для того чтобы его прыгучесть вернуть в обратное
-                                                       // состояние
+        if (collision.gameObject.tag == "Quicksand")   
         {
             speed *= 4f;
             rb.mass *= 0.01f;
@@ -409,20 +397,20 @@ public class Player : MonoBehaviour
 
     }
 
-    public int GetCoins()   //возвращаем монеты Main
+    public int GetCoins()   
     {
         return coins;
     }
-    public int GetHP()   //здоровье Main
+    public int GetHP()   
     {
         return curHp;
     }
 
-    public void BlueGem()   //метод вызывает корутину неуязвимости, чтобы мы могли вызывать из других классов
+    public void BlueGem()  
     {
         StartCoroutine(NoHit());
     }
-    public void GreenGem()   //метод вызывает корутину неуязвимости, чтобы мы могли вызывать из других классов
+    public void GreenGem()   
     {
         StartCoroutine(SpeedBonus());
     }
